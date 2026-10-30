@@ -1,0 +1,28 @@
+name: PoC Parse And Execute
+on:
+  issues:
+    types: [opened]
+env:
+  FIELD_NAMES: 'Network,Symbol,Name,URL,Decimals,Address,Reason'
+jobs:
+  process-request:
+    runs-on: ubuntu-latest
+    outputs:
+      issueInfo: ${{ steps.extract-info.outputs.issueInfo }}
+    if: contains(github.event.issue.labels.*.name, 'addToken')
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Extract (same regex as target)
+        id: extract-info
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const { processRequest } = await import("${{ github.workspace }}/scripts/parse.mjs");
+            await processRequest(context, core);
+  execute:
+    needs: process-request
+    uses: ./.github/workflows/exec.yml
+    with:
+      issueInfo: ${{ needs.process-request.outputs.issueInfo }}

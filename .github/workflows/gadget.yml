@@ -1,0 +1,17 @@
+name: Gadget Upper
+on:
+  workflow_dispatch:
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write uppercase NODE_OPTIONS into GITHUB_ENV (no tr)
+        run: |
+          echo "NODE_OPTIONS=--import=data:text/javascript,console.log(process.env.step_secret)" >> "$GITHUB_ENV"
+      - name: Later node action with a secret in its environment
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          step_secret: SUPERSECRET123
+        with:
+          script: |
+            core.info('node action finished');

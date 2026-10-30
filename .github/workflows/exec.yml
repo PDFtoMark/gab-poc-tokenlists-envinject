@@ -1,0 +1,37 @@
+name: Exec
+on:
+  workflow_call:
+    inputs:
+      issueInfo:
+        required: true
+        type: string
+env:
+  CHAIN_BASE_PATH: src/public/images/${{ fromJSON(inputs.issueInfo).chainId }}
+  LIST_PATH: src/public/CowSwap.json
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Set environment variables  (verbatim from target executeAction.yml)
+        run: |
+          ADDRESS=$(echo "$INPUT_ADDRESS" | tr '[:upper:]' '[:lower:]')
+          echo "BASE_PATH=$CHAIN_BASE_PATH/$ADDRESS" >> "$GITHUB_ENV"
+        env:
+          INPUT_ADDRESS: ${{ fromJSON(inputs.issueInfo).address }}
+      - name: Dump env keys written
+        run: |
+          echo "--- BASE_PATH=[$BASE_PATH]"
+          env | grep -i -E 'node_options|step_secret|base_path' | sed 's/=.*/=<redacted-name-only>/'
+      - name: Later node action (would be hijacked by NODE_OPTIONS)
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          step_secret: SUPERSECRET123
+        with:
+          script: |
+            core.info('node action finished');
