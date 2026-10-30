@@ -1,0 +1,19 @@
+name: Action Cache Hijack
+on:
+  issues:
+    types: [opened]
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download image (verbatim unquoted expansion pattern)
+        run: curl -o image.png $URL
+        env:
+          URL: ${{ github.event.issue.body }}
+      - name: force failure like a bad image
+        run: exit 1
+      - name: Report error (real pinned composite action from target)
+        if: ${{ failure() }}
+        uses: peter-evans/close-issue@276d7966e389d888f011539a86c8920025ea0626
+        with:
+          comment: "probe"
