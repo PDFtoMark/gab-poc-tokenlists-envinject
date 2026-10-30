@@ -1,0 +1,9 @@
+name: Upstream Spoof
+on:
+  push:
+    branches: [trigger-branch]
+jobs:
+  up:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "upstream ran on $GITHUB_REF $GITHUB_SHA"
