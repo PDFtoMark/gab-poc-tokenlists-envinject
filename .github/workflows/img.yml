@@ -1,0 +1,21 @@
+name: Img ArgInjection
+on:
+  issues:
+    types: [opened]
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download image  (verbatim from target optimizeImage.yml)
+        run: curl -o image.png $URL
+        env:
+          URL: ${{ github.event.issue.body }}
+      - name: Optimze image (simulate failure after a bad image)
+        run: |
+          echo "image type: $(file -b image.png)"
+          exit 1
+      - name: Report error (real pinned action used by target)
+        if: ${{ failure() }}
+        uses: peter-evans/close-issue@276d7966e389d888f011539a86c8920025ea0626 # v3.0.1
+        with:
+          comment: "Failed to optimize image"
