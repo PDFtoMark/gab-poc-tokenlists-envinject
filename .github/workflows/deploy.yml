@@ -1,0 +1,23 @@
+name: Deploy Like s3Deploy
+on:
+  workflow_run:
+    workflows: ["Upstream Spoof"]
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Identity of this run
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "workflow_run.head_branch=${{ github.event.workflow_run.head_branch }}"
+          echo "workflow_run.head_sha=${{ github.event.workflow_run.head_sha }}"
+          echo "workflow_run.event=${{ github.event.workflow_run.event }}"
+          echo "checked-out HEAD: $(git log -1 --format='%h %s')"
+          echo "marker: $(cat marker.txt 2>/dev/null || echo ABSENT)"
