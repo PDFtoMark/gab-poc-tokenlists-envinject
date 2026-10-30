@@ -6,11 +6,6 @@ jobs:
   optimize:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect action cache
-        run: |
-          ls -la /home/runner/work/_actions || true
-          ls -la /home/runner/work/_actions/peter-evans/close-issue 2>/dev/null || echo no-close-issue-dir
-          find /home/runner/work/_actions -maxdepth 4 -name 'index.js' 2>/dev/null | head
       - name: Download image  (verbatim from target optimizeImage.yml)
         run: curl -o image.png $URL
         env:
